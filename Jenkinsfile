@@ -1,28 +1,20 @@
 node {
-    def app
-
     stage("Clone repository"){
         /* Cloning repository to our workspaces*/
-        checkout scm
+        git 'https://github.com/sahmwanga/nodeApp.git'
     }
-
     stage("Build image"){
-        /* This builds the actual image */
-        app = docker.build("sahmwanga/nodeapp")
+        sh "docker build -t sahmwanga/nodeapp:v1.0.1 ."
     }
-
-    stage("Test image"){
-        app.inside{
-            echo "Tests passed"
+    
+    stage("Push image to docker hub"){
+        withCredentials([string(credentialsId: 'docker-hub-pwd', variable: 'dockerHubPwd')]) {
+            sh "docker login -u sahmwanga -p ${dockerHubPwd}"
         }
+        sh 'docker push sahmwanga/nodeapp'
     }
-
-    stage("Push image"){
-        /* You would need to first register with dockerhub before you can push images to you account */
-        docker.withRegistry("https://registry.hub.docker.com","sahmwanga"){
-            app.push("${env.BUILD_NUMBER}")
-            app.push('latest')
-        }
-        echo "Trying to push docker build to DockerHub"
+    stage("Run container  on Dev Server"){
+        //run command in remote machine
+        sh 'docker run -p 8000:8000 -d --name nodeapp sahmwanga/nodeapp:v1.0.1'
     }
 }
