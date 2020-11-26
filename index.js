@@ -6,6 +6,9 @@ app.use("/", (req, res) => {
   res.send("hello world");
 });
 
-app.listen(8000, () => {
-  console.log("Server is running on port 8000");
+const server = app.listen(8000, () => {
+  const host = server.address().address;
+  const port = server.address().port;
+  
+  console.log("Server is listening at http://%s:%s",host,port);
 });
