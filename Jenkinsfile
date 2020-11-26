@@ -15,6 +15,7 @@ node {
     }
     stage("Run container  on Dev Server"){
         //run command in remote machine
-        sh 'docker run -p 8000:8000 -d --name nodeapp sahmwanga/nodeapp:v1.0.1'
+        // sh 'docker run -p 8000:8000 -d --name nodeapp sahmwanga/nodeapp:v1.0.1'
+        sh 'docker-compose up -d'
     }
 }
