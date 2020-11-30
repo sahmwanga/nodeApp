@@ -1,0 +1,38 @@
+pipeline{
+    agent any
+    environment
+    {
+        VERSION = "${BUILD_NUMBER}"
+        PROJECT = "auto-deploy"
+        IMAGE = "$PROJECT:$VERSION"
+        ECRURL = "https://347944191864.dkr.ecr.us-east-2.amazonaws.com"
+        ECRCRED = "ecr:us-east-2:awscred"
+    }
+
+    stages{
+        stage('GetSCM') {
+            steps {
+                // git "https://bitbucket.org/bongolive/bl-ussd-demo-api.git"
+                git branch: 'master',credentialsId: 'bitbucket',url: 'https://bitbucket.org/xxxx/test-project.git'
+            }
+        }
+        stage('Image build') {
+            steps{
+                script
+                {
+                    docker.build("$IMAGE")
+                }
+            }
+        }
+        stage('Image push') {
+            steps {
+                script
+                {
+                    docker.withRegistry("$ECRURL", "$ECRCRED"){
+                        docker.image("$IMAGE").push()
+                    }
+                }
+            }
+        }
+    }
+}
